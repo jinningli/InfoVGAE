@@ -20,6 +20,7 @@ parser.add_argument('--learning_rate', type=float, default=0.01, help='learning 
 parser.add_argument('--device', type=str, default="0", help='cpu/gpu device')
 parser.add_argument('--num_process', type=int, default=40, help='num_process for pandas parallel')
 parser.add_argument('--seed', type=int, default=0, help='random seed')
+parser.add_argument('--use_cuda', action="store_true", help='whether to use cuda device')
 
 # Data
 parser.add_argument('--dataset', type=str, help='dataset to use')

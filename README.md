@@ -48,6 +48,8 @@ Evaluation will be automaticly triggered after the training process. To evaluate
 
 > General
 
+`--use_cuda`: training with GPU
+
 `--epochs`: iterations for training
 
 `--learning_rate`: learning rate for training

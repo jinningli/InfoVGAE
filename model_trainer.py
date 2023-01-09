@@ -108,15 +108,27 @@ class InfoVGAETrainer(TrainerBase):
         weight_mask = adj_label.to_dense().view(-1) == 1
         weight_tensor = torch.ones(weight_mask.size(0))
         weight_tensor[weight_mask] = pos_weight
+        ones = torch.ones(self.adj_matrix.shape[0], dtype=torch.long)
+        zeros = torch.zeros(self.adj_matrix.shape[0], dtype=torch.long)
+
+        if self.args.use_cuda:
+            adj_norm = adj_norm.cuda()
+            adj_label = adj_label.cuda()
+            features = features.cuda()
+            weight_tensor = weight_tensor.cuda()
+            ones = ones.cuda()
+            zeros = zeros.cuda()
 
         # init model and optimizer
         self.model = InfoVGAE(self.args, adj_norm)
+        if self.args.use_cuda:
+            self.model = self.model.cuda()
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.args.learning_rate)
         self.D = Discriminator(self.args.hidden2_dim)
+        if self.args.use_cuda:
+            self.D = self.D.cuda()
         self.optimizer_D = torch.optim.Adam(self.D.parameters(), lr=self.args.lr_D,
                                             betas=(self.args.beta1_D, self.args.beta2_D))
-        ones = torch.ones(self.adj_matrix.shape[0], dtype=torch.long)
-        zeros = torch.zeros(self.adj_matrix.shape[0], dtype=torch.long)
 
         # train model
         Kp = 0.001
@@ -157,7 +169,7 @@ class InfoVGAETrainer(TrainerBase):
 
             if epoch % 1 == 0:
                 evaluator = Evaluator()
-                embedding = self.model.encode(features).detach().numpy()
+                embedding = self.model.encode(features).detach().cpu().numpy()
                 evaluator.init_from_value(embedding, self.dataset.user_label.copy(), self.dataset.asser_label.copy(),
                                           self.dataset.name_list.copy(), self.dataset.asserlist.copy(),
                                           output_dir=self.args.output_path)
@@ -180,7 +192,7 @@ class InfoVGAETrainer(TrainerBase):
                     fout.write(eval_log)
                     fout.write(log + "\n\n")
 
-        self.result_embedding = self.model.encode(features).detach().numpy()
+        self.result_embedding = self.model.encode(features).detach().cpu().numpy()
 
     def save(self, path=None):
         path = self.args.output_path if path is None else path

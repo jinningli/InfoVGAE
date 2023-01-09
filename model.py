@@ -77,7 +77,7 @@ class InfoVGAE(nn.Module):
         hidden = self.base_gcn(x)
         self.mean = self.gcn_mean(hidden)
         self.logstd = self.gcn_logstddev(hidden)
-        gaussian_noise = torch.randn(x.size(0), self.hidden2_dim)
+        gaussian_noise = torch.randn(x.size(0), self.hidden2_dim).cuda() if self.args.use_cuda else torch.randn(x.size(0), self.hidden2_dim)
         sampled_z = F.relu(gaussian_noise * torch.exp(self.logstd) + self.mean)
         return sampled_z
 
@@ -85,7 +85,7 @@ class InfoVGAE(nn.Module):
         hidden = self.base_gcn(x)
         self.mean = self.gcn_mean(hidden)
         self.logstd = self.gcn_logstddev(hidden)
-        gaussian_noise = torch.randn(x.size(0), self.hidden2_dim)
+        gaussian_noise = torch.randn(x.size(0), self.hidden2_dim).cuda() if self.args.use_cuda else torch.randn(x.size(0), self.hidden2_dim)
         sampled_z = gaussian_noise * torch.exp(self.logstd) + self.mean
         return sampled_z
 
