@@ -72,6 +72,9 @@ class InfoVGAE(nn.Module):
         self.user_nodes_mask[:self.num_user, :] = 1.0
         self.asser_nodes_mask = torch.zeros((self.num_user + self.num_assertion, self.hidden2_dim))
         self.asser_nodes_mask[self.num_user:, :] = 1.0
+        if self.args.use_cuda:
+            self.user_nodes_mask = self.user_nodes_mask.cuda()
+            self.asser_nodes_mask = self.asser_nodes_mask.cuda()
 
     def encode(self, x):
         hidden = self.base_gcn(x)
